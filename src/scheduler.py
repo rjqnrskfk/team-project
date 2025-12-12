@@ -1,39 +1,29 @@
-# scheduler.py
-# 시간표 생성 알고리즘
+from ortools.sat.python import cp_model
 
-def is_conflict(a, b):
-    """
-    두 과목이 시간이 겹치는지 확인하는 함수
-    """
-    return a['day'] == b['day'] and not (a['end'] <= b['start'] or b['end'] <= a['start'])
+def generate_schedule(subjects, timeslots):
+    model = cp_model.CpModel()
 
+    # 변수 정의
+    x = {}
+    for s in subjects:
+        for t in timeslots:
+            x[(s, t)] = model.NewBoolVar(f"{s}_{t}")
 
-def generate_timetables(courses):
-    """
-    가능한 모든 조합의 시간표를 생성하는 함수
-    """
-    result = []
-    n = len(courses)
+    # 각 과목은 정확히 한 시간대에 배치
+    for s in subjects:
+        model.Add(sum(x[(s, t)] for t in timeslots) == 1)
 
-    def backtrack(idx, cur):
-        if idx == n:
-            result.append(cur[:])
-            return
+    # 한 시간대에 두 과목이 동시에 배치되지 않도록
+    for t in timeslots:
+        model.Add(sum(x[(s, t)] for s in subjects) <= 1)
 
-        # 현재 과목을 포함하는 경우
-        conflict = False
-        for c in cur:
-            if is_conflict(c, courses[idx]):
-                conflict = True
-                break
+    solver = cp_model.CpSolver()
+    solver.Solve(model)
 
-        if not conflict:
-            cur.append(courses[idx])
-            backtrack(idx + 1, cur)
-            cur.pop()
-
-        # 현재 과목을 포함하지 않는 경우
-        backtrack(idx + 1, cur)
-
-    backtrack(0, [])
+    result = {}
+    for s in subjects:
+        for t in timeslots:
+            if solver.Value(x[(s, t)]) == 1:
+                result[s] = t
+    
     return result
