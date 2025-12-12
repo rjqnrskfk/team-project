@@ -1,5 +1,5 @@
 import streamlit as st
-from scheduler.scheduler import generate_schedule
+from scheduler import generate_schedule  # 폴더 구조에 맞게 수정
 
 st.title("자동 시간표 생성기")
 
