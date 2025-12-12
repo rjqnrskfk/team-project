@@ -1,0 +1,5 @@
+[
+  {"name": "수학", "day": "Mon", "start": 9, "end": 11},
+  {"name": "영어", "day": "Mon", "start": 11, "end": 12},
+  {"name": "프로그래밍", "day": "Tue", "start": 13, "end": 15}
+]
